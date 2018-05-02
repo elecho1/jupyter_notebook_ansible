@@ -16,11 +16,13 @@
       pip: 
         name: jupyter
         executable: pip3
+        extra_args: --user
         # version: 1.0.0
     - name: install `jupyter-contrib-nbextensions`
       pip:
         name: jupyter-contrib-nbextensions
         executable: pip3
+        extra_args: --user
         # version: 0.5.0
     - name: jupyter nbextensions install CSS/javascripts
       command: jupyter contrib nbextension install --user
@@ -28,6 +30,7 @@
       pip:
         name: jupyter_nbextensions_configurator
         executable: pip3
+        extra_args: --user
         # version: 0.4.0
     - name: enable `jupyter_nbextensions_configurator`
       command: jupyter nbextensions_configurator enable --user
@@ -35,6 +38,7 @@
       pip: 
         name: IPython
         executable: pip3
+        extra_args: --user
         # version: 6.3.1
     - name: calculate sha1 code
       shell: "python3 -c \"from IPython.lib import passwd\nprint(passwd('{{ password }}'))\" "
@@ -47,7 +51,7 @@
     - name: edit settings
       replace:
         path: /home/{{ username }}/.jupyter/jupyter_notebook_config.py 
-        regexp: "^#c.NotebookApp.ip = \'localhost\'"
+        regexp: "^#c.NotebookApp.ip = 'localhost'"
         replace: "c.NotebookApp.ip = '*'"
         #backup: yes
     - name: edit settings2

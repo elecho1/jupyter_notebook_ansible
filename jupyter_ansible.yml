@@ -1,0 +1,72 @@
+# ansible-playbook for jupyter
+- hosts: all
+  vars_prompt:
+    - name: "username"
+      prompt: "your remote account name"
+      private: no
+    - name: "port"
+      prompt: "Remote port for Jupyter"
+      private: no
+    - name: "password"
+      prompt: "Password for Jupyter (can be different from remote-account's PW)"
+      private: yes
+      confirm: yes
+  tasks: 
+    - name: insatll jupyter
+      pip: 
+        name: jupyter
+        executable: pip3
+        # version: 1.0.0
+    - name: install `jupyter-contrib-nbextensions`
+      pip:
+        name: jupyter-contrib-nbextensions
+        executable: pip3
+        # version: 0.5.0
+    - name: jupyter nbextensions install CSS/javascripts
+      command: jupyter contrib nbextension install --user
+    - name: install `jupyter-nbextensions-configurator`
+      pip:
+        name: jupyter_nbextensions_configurator
+        executable: pip3
+        # version: 0.4.0
+    - name: enable `jupyter_nbextensions_configurator`
+      command: jupyter nbextensions_configurator enable --user
+    - name: install IPython
+      pip: 
+        name: IPython
+        executable: pip3
+        # version: 6.3.1
+    - name: calculate sha1 code
+      shell: "python3 -c \"from IPython.lib import passwd\nprint(passwd('{{ password }}'))\" "
+      register: sha1
+    - name: generate jupyter default settings
+      expect:
+        command: jupyter notebook --generate-config
+        responses:
+          "^Overwrite .*": "N"
+    - name: edit settings
+      replace:
+        path: /home/{{ username }}/.jupyter/jupyter_notebook_config.py 
+        regexp: "^#c.NotebookApp.ip = \'localhost\'"
+        replace: "c.NotebookApp.ip = '*'"
+        #backup: yes
+    - name: edit settings2
+      replace:
+        path: /home/{{ username }}/.jupyter/jupyter_notebook_config.py 
+        regexp: "^#c.NotebookApp.open_browser = True"
+        replace: "c.NotebookApp.open_browser = False"
+        #backup: yes
+    - name: edit settings3
+      replace:           
+        path: /home/{{ username }}/.jupyter/jupyter_notebook_config.py
+        regexp: "^#c.NotebookApp.password = ''"
+        replace: "c.NotebookApp.password = u'{{ sha1.stdout }}'"
+        #backup: yes
+    - name: edit settings4
+      replace:           
+        path: /home/{{ username }}/.jupyter/jupyter_notebook_config.py
+        regexp: "^#c.NotebookApp.port = 8888"
+        replace: "c.NotebookApp.port = {{ port }}"
+        #backup: yes
+                 
+        

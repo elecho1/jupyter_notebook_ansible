@@ -20,7 +20,7 @@
         # version: 1.0.0
     - name: install `jupyter-contrib-nbextensions`
       pip:
-        name: jupyter-contrib-nbextensions
+        name: jupyter_contrib_nbextensions
         executable: pip3
         extra_args: --user
         # version: 0.5.0
